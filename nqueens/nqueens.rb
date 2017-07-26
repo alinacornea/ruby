@@ -4,7 +4,7 @@ class Board
   SIZE = 8
   @@h = '-'.bold.blue
   @@v = '|'.bold.blue
-  @@b = '-'.bold.blue
+  @@b = '+'.bold.blue
 
   attr_accessor :queens
 
@@ -16,29 +16,13 @@ class Board
   def rows
     @size
   end
-
-  def starting_row
-    0
-  end
-
-  def ending_row
-    rows - 1
-  end
-
+  
   def columns
     @size
   end
 
-  def starting_col
-    0
-  end
-
   def ending_col
     columns - 1
-  end
-
-  def safe_column?(column)
-    queens.none? {|q| q.column == column}
   end
 
   def safe_row?(row)
@@ -84,7 +68,6 @@ class Board
 
   def safe_position?(column, row)
     return false unless safe_row?(row)
-    return false unless safe_column?(column)
     return false unless safe_diagonal?(column, row)
     return true
   end
@@ -118,6 +101,9 @@ class Queen
     end
 end
 
+
+
+
 def add_solution(board)
     sol = Board.new
     sol.queens = board.queens.map(&:dup)
@@ -138,16 +124,19 @@ def solve_problem(column)
     end    
 end
 
-@solution = false
 @all_solutions = []
 @board = Board.new
+@count = 0
 solve_problem(0)
 if !@all_solutions.empty?
     @all_solutions.each_with_index do |sol, i|
-      puts "\n Solution board: #{i} "
+      puts "Solution board number: #{i} ".bold
       sol.display
+      @count = i
     end
+puts "Were found: #{@count + 1} solutions!\n".bold
 else
   puts "No solution were found."
 end
+
 
