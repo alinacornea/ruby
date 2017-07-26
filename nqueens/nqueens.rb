@@ -101,9 +101,6 @@ class Queen
     end
 end
 
-
-
-
 def add_solution(board)
     sol = Board.new
     sol.queens = board.queens.map(&:dup)
