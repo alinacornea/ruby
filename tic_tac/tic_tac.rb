@@ -1,8 +1,9 @@
 require "colorize"
+require 'matrix'
 
 
 class Player
-  attr_accessor :name, :turn
+  attr_accessor :name, :turn, :symbol
 
   def initialize(name, symbol)
     @name = name
@@ -10,14 +11,16 @@ class Player
     @turn = false
   end
 
-
   def selection
-    sel = gets.chomp.to_i
+    sel = gets.chomp
     exit if sel.to_s == "quit"
-    if (1..9).include?(sel) == false
+    if (1..9).include?(sel.to_i) == false
       puts "Please enter a valid cell from 1 to 9 or enter 'quit' to quit the game!".bold
+      sel = gets.chomp
       exit if sel.to_s == "quit"
     end
+    location = $board.parse_selection(sel)
+    # if $board.matrix[]
 
   end
 
@@ -30,17 +33,17 @@ class Game
 
 
   def initialize(name1, name2)
-    @board = Board.new
+    $board = Board.new
     @player1 = Player.new(name1, 'X')
     @player2 = Player.new(name2, 'O')
   end
 
   def game_over?
-    (@board.check_step(@player1, @player2)) ? true : false
+    ($board.check_step(@player1, @player2)) ? true : false
   end
 
   def play
-    @board.intructions
+    $board.intructions
     @player1.turn = true
     put_mark
   end
@@ -74,14 +77,15 @@ class Board
     [0, 4, 8], [2, 4, 6],             # <-- Diagonal wins
   ]
 
-  attr_accessor :matrix, :win
+  attr_accessor :matrix, :win, :show_map
 
   def initialize
-      @matrix = Array.new(3){Array.new(3, " ")}
+      @matrix = Array.new(3) {Array.new(3) }
+      # @matrix = Matrix.build(3, 3) {|row, col| }
       @win = ""
   end
 
-  def display
+  def display()
     puts
     puts " #{matrix[0][0]} | #{matrix[0][1]} | #{matrix[1][2]}".cyan
     puts "---|---|---".bold
@@ -92,16 +96,25 @@ class Board
   end
 
   def intructions
-    @matrix[0][0] = "1"
-    @matrix[0][1] = "2"
-    @matrix[0][2] = "3"
-    @matrix[1][0] = "4"
-    @matrix[1][1] = "5"
-    @matrix[1][2] = "6"
-    @matrix[2][0] = "7"
-    @matrix[2][1] = "8"
-    @matrix[2][2] = "9"
+    @matrix[0][0] = 1
+    @matrix[0][1] = 2
+    @matrix[0][2] = 3
+    @matrix[1][0] = 4
+    @matrix[1][1] = 5
+    @matrix[1][2] = 6
+    @matrix[2][0] = 7
+    @matrix[2][1] = 8
+    @matrix[2][2] = 9
     puts "To mark a cell just type the number of the cell 1-9: ".bold
+    display
+  end
+
+
+  def parse_selection(sel)
+    print matrix
+    row = @matrix.detect{|a| a.include?(sel.to_i)}
+    location = [row.index(sel.to_i), @matrix.index(row)]
+    p "location: #{location}"
     display
   end
 
