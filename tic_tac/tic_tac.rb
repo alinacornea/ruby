@@ -19,7 +19,7 @@ class Player
       sel = gets.chomp
       exit if sel.to_s == "quit"
     end
-    $board.parse_selection(sel, symbol)
+    $board.parse_selection(sel.to_i, symbol)
   end
 
 end
@@ -32,12 +32,12 @@ class Game
 
   def initialize(name1, name2)
     $board = Board.new
-    @player1 = Player.new(name1, 'X'.red)
-    @player2 = Player.new(name2, 'O'.green)
+    @player1 = Player.new(name1, 'X')
+    @player2 = Player.new(name2, 'O')
   end
 
   def game_over?
-    ($board.check_step(@player1, @player2)) ? true : false
+    $board.check_step ? true : false
   end
 
   def play
@@ -69,17 +69,15 @@ end
 
 class Board
 
-  WINS = [
-    [1, 2, 3], [4, 5, 6], [7, 8, 9],  # <-- Horizontal wins
-    [1, 4, 7], [2, 5, 8], [3, 6, 9],  # <-- Vertical wins
-    [1, 5, 9], [3, 5, 7],             # <-- Diagonal wins
-  ]
+  WINS = [[0, 1, 2], [3, 4, 5], [6, 7, 8], #Horizontal
+     [0, 3, 6], [1, 4, 7], [2, 5, 8], #Vertical
+     [0, 4, 8], [2, 4, 6]]            #Diagonal
 
   attr_accessor :matrix, :win
 
   def initialize
       @matrix = Array.new(3) {Array.new(3) }
-      # @matrix = Matrix.build(3, 3)
+      @winner_board = Array.new(3) {Array.new(8)}
       @win = false
   end
 
@@ -109,21 +107,32 @@ class Board
 
 
   def parse_selection(sel, symbol)
-    row = @matrix.detect{|a| a.include?(sel.to_i)}
-    x = @matrix.index(row)
-    y = row.index(sel.to_i)
-    @matrix[x][y] = symbol
+      row = @matrix.detect{|a| a.include?(sel)}
+      x = @matrix.index(row)
+      y = row.index(sel)
+      @matrix[x][y] = symbol
+
     display
   end
 
-  def check_step(player1, player2)
-    if WINS.any? { |line| line.all? { |square| @matrix[square] == player } }
-      @win = @player
-      true
+  def check_step
+    WINS.each do |win|
+      print @matrix
+      if check_combination?('X', win)
+        return win
+      elsif check_combination?('O', win)
+        return win
+      else
+        return false
+      end
     end
-    false
   end
 
+  def check_combination?(player, win)
+    win.all? do |position|
+      @matrix[position] == player
+    end
+  end
 
 end
 
