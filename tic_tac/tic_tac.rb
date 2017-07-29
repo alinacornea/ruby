@@ -19,9 +19,7 @@ class Player
       sel = gets.chomp
       exit if sel.to_s == "quit"
     end
-    location = $board.parse_selection(sel)
-    # if $board.matrix[]
-
+    $board.parse_selection(sel, symbol)
   end
 
 end
@@ -34,8 +32,8 @@ class Game
 
   def initialize(name1, name2)
     $board = Board.new
-    @player1 = Player.new(name1, 'X')
-    @player2 = Player.new(name2, 'O')
+    @player1 = Player.new(name1, 'X'.red)
+    @player2 = Player.new(name2, 'O'.green)
   end
 
   def game_over?
@@ -51,7 +49,7 @@ class Game
   def put_mark
     until game_over?
       current_player = @player1.turn ? @player1 : @player2
-      puts "#{current_player.name}, select a cell to mark! (1-9)".bold
+      puts "#{current_player.name}, mark!".bold
       current_player.selection
       switch_players
     end
@@ -72,26 +70,26 @@ end
 class Board
 
   WINS = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],  # <-- Horizontal wins
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],  # <-- Vertical wins
-    [0, 4, 8], [2, 4, 6],             # <-- Diagonal wins
+    [1, 2, 3], [4, 5, 6], [7, 8, 9],  # <-- Horizontal wins
+    [1, 4, 7], [2, 5, 8], [3, 6, 9],  # <-- Vertical wins
+    [1, 5, 9], [3, 5, 7],             # <-- Diagonal wins
   ]
 
-  attr_accessor :matrix, :win, :show_map
+  attr_accessor :matrix, :win
 
   def initialize
       @matrix = Array.new(3) {Array.new(3) }
-      # @matrix = Matrix.build(3, 3) {|row, col| }
-      @win = ""
+      # @matrix = Matrix.build(3, 3)
+      @win = false
   end
 
   def display()
     puts
-    puts " #{matrix[0][0]} | #{matrix[0][1]} | #{matrix[1][2]}".cyan
+    puts " #{matrix[0][0]} | #{matrix[0][1]} | #{matrix[0][2]}".bold
     puts "---|---|---".bold
-    puts " #{matrix[1][0]} | #{matrix[1][1]} | #{matrix[1][2]}".cyan
+    puts " #{matrix[1][0]} | #{matrix[1][1]} | #{matrix[1][2]}".bold
     puts "---|---|---".bold
-    puts " #{matrix[2][0]} | #{matrix[2][1]} | #{matrix[2][2]}".cyan
+    puts " #{matrix[2][0]} | #{matrix[2][1]} | #{matrix[2][2]}".bold
     puts
   end
 
@@ -110,15 +108,15 @@ class Board
   end
 
 
-  def parse_selection(sel)
-    print matrix
+  def parse_selection(sel, symbol)
     row = @matrix.detect{|a| a.include?(sel.to_i)}
-    location = [row.index(sel.to_i), @matrix.index(row)]
-    p "location: #{location}"
+    x = @matrix.index(row)
+    y = row.index(sel.to_i)
+    @matrix[x][y] = symbol
     display
   end
 
-  def check_step(*player)
+  def check_step(player1, player2)
     if WINS.any? { |line| line.all? { |square| @matrix[square] == player } }
       @win = @player
       true
